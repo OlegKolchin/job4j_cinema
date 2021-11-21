@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS account (
 CREATE TABLE IF NOT EXISTS ticket (
 id SERIAL PRIMARY KEY,
 session_id INT NOT NULL,
-row INT NOT NULL,
+ticket_row INT NOT NULL,
 cell INT NOT NULL,
 account_id INT NOT NULL,
 foreign key(account_id) references account(id)

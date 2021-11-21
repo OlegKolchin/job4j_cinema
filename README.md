@@ -1,0 +1,2 @@
+[![Build Status](https://app.travis-ci.com/OlegKolchin/job4j_cinema.svg?branch=master)](https://app.travis-ci.com/OlegKolchin/job4j_cinema)
+[![codecov](https://codecov.io/gh/OlegKolchin/job4j_cinema/branch/master/graph/badge.svg?token=GAUBRKC4Z3)](https://codecov.io/gh/OlegKolchin/job4j_cinema)

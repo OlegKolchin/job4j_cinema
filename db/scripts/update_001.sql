@@ -7,9 +7,10 @@ CREATE TABLE IF NOT EXISTS account (
 
 CREATE TABLE IF NOT EXISTS ticket (
 id SERIAL PRIMARY KEY,
-session_id INT NOT NULL,
-ticket_row INT NOT NULL,
+session_id INT NOT NULL UNiQUE,
+hall_row INT NOT NULL,
 cell INT NOT NULL,
-account_id INT NOT NULL,
-foreign key(account_id) references account(id)
+account_id INT NOT NULL references account(id)
 );
+
+alter table ticket add constraint const unique(hall_row, cell)

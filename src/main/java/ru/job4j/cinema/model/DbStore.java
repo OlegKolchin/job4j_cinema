@@ -1,11 +1,13 @@
 package ru.job4j.cinema.model;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Properties;
 
@@ -97,15 +99,7 @@ public class DbStore implements Store {
     }
 
     @Override
-    public void save(Ticket ticket) {
-        if (ticket.getId() == 0) {
-            create(ticket);
-        } else {
-            update(ticket);
-        }
-    }
-
-    private void create(Ticket ticket) {
+    public void save(Ticket ticket) throws SQLIntegrityConstraintViolationException {
         try (Connection cn = pool.getConnection();
              PreparedStatement ps =  cn.prepareStatement("INSERT INTO ticket(session_id, hall_row, cell, account_id) VALUES (?, ?, ?, ?)",
                      PreparedStatement.RETURN_GENERATED_KEYS)
@@ -121,21 +115,9 @@ public class DbStore implements Store {
                 }
             }
         } catch (Exception e) {
-            LOG.error("Exception", e);
-        }
-    }
-
-    private void update(Ticket ticket) {
-        try (Connection cn = pool.getConnection();
-             PreparedStatement ps = cn.prepareStatement("UPDATE ticket SET session_id =  ?, hall_row = ?,"
-                     + " cell = ?, account_id = ? where id = ?")) {
-            ps.setInt(1, ticket.getSessionId());
-            ps.setInt(2, ticket.getRow());
-            ps.setInt(3, ticket.getCell());
-            ps.setInt(4, ticket.getAccountId());
-            ps.setInt(5, ticket.getId());
-            ps.executeUpdate();
-        } catch (Exception e) {
+            if (e.getClass().equals(PSQLException.class)) {
+                throw new SQLIntegrityConstraintViolationException();
+            }
             LOG.error("Exception", e);
         }
     }

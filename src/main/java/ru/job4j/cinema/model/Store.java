@@ -1,11 +1,12 @@
 package ru.job4j.cinema.model;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 public interface Store {
     void save(Account account);
 
-    void save(Ticket ticket);
+    void save(Ticket ticket) throws SQLIntegrityConstraintViolationException;
 
     void deleteAccount(String email);
 

@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 public class HallServlet extends HttpServlet {
     private static final Gson GSON = new GsonBuilder().create();
@@ -30,19 +31,23 @@ public class HallServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (DbStore.instOf().findAccountByEmail(req.getParameter("email")) == null) {
+        try {
             DbStore.instOf().save(new Account(0, req.getParameter("username"),
                     req.getParameter("email"), req.getParameter("phone")));
+            Account account = DbStore.instOf().findAccountByEmail(req.getParameter("email"));
+            HttpSession session = req.getSession();
+            session.setAttribute("session_id", account.getId());
+            int row = Integer.parseInt(req.getParameter("row"));
+            int cell = Integer.parseInt(req.getParameter("cell"));
+            int sessionId = (int) session.getAttribute("session_id");
+            int accountId = account.getId();
+            DbStore.instOf().save(
+                    new Ticket(0, sessionId, row, cell, accountId)
+            );
+        } catch (Exception e) {
+            if (e.getClass().equals(SQLIntegrityConstraintViolationException.class)) {
+                resp.sendError(409);
+            }
         }
-        Account account = DbStore.instOf().findAccountByEmail(req.getParameter("email"));
-        HttpSession session = req.getSession();
-        session.setAttribute("session_id", account.getId());
-        int row = Integer.parseInt(req.getParameter("row"));
-        int cell = Integer.parseInt(req.getParameter("cell"));
-        int sessionId = (int) session.getAttribute("session_id");
-        int accountId = account.getId();
-        DbStore.instOf().save(
-                new Ticket(0, sessionId, row, cell, accountId)
-        );
     }
 }

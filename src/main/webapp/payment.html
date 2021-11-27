@@ -31,9 +31,11 @@
 <script>
   var row = localStorage.getItem('rowCell').split("")[0];
   var cell = localStorage.getItem('rowCell').split("")[1];
+
   $(document).ready(function () {
     $('#h3').append('<h3>' + 'Вы выбрали ряд ' + row + ' место ' + cell + ', Сумма: 500 рублей' +'</h3>')
   })
+
   function hallPost() {
     $.ajax({
       type: 'POST',
@@ -48,11 +50,34 @@
     }).done(function (data) {
       redirect()
     }).fail(function (err) {
+      if (err.status === 409) {
+        alert('Место занято! Выберите другое место');
+      }
       console.log(err);
     });
   }
+
   function redirect() {
     window.location.href = 'http://localhost:8080/cinema/';
+  }
+
+  function validate() {
+    var username = $('#username').val();
+    var phone = $('#phone').val();
+    var email = $('#email').val();
+    if (username == '') {
+      alert('Введите имя');
+      return false;
+    }
+    if (phone =='') {
+      alert('Введите телефон');
+      return false;
+    }
+    if (email =='') {
+      alert('Введите email');
+      return false;
+    }
+    return true;
   }
 </script>
 <body>
@@ -73,7 +98,8 @@
         <label for="phone">Email</label>
         <input type="text" class="form-control" id="email" placeholder="Email">
       </div>
-      <button type="button" class="btn btn-success" onclick="hallPost()">Оплатить</button>
+      <button type="button" class="btn btn-success" onclick=" if (validate()) hallPost()">Оплатить</button>
+      <button type="button" class="btn btn-primary" onclick="redirect()">Вернуться к выбору места</button>
     </form>
   </div>
 </div>
